@@ -26,7 +26,7 @@ def process_file(uploaded_file):
 
 # Streamlit app
 def main():
-    st.title("Upload the GSTR4 Excel file from APR-JUN to JAN-MAR")
+    st.title("Upload Gstr4 excel file")
     
     # Upload file
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
@@ -38,7 +38,7 @@ def main():
         result = process_file(uploaded_file)
 
         # Download link for the processed file
-        st.markdown(get_binary_file_downloader_html(result, file_label='Processed file', file_name='Data_agg.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_binary_file_downloader_html(result, file_label='Processed file', file_name='processed-file.xlsx'), unsafe_allow_html=True)
 
 # Function to create a download link for files
 def get_binary_file_downloader_html(bin_file, file_label='File', file_name='file.xlsx'):
