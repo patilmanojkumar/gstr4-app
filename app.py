@@ -39,7 +39,7 @@ def main():
         result = process_file(uploaded_file)
 
         # Download link for the processed file
-        st.markdown(get_binary_file_downloader_html(result, file_label='<span style="color: blue;">Processed file</span>', file_name='processed-file.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_binary_file_downloader_html(result, file_label='<span style="color: green;">Processed file</span>', file_name='processed-file.xlsx'), unsafe_allow_html=True)
 
 # Function to create a download link for files
 def get_binary_file_downloader_html(bin_file, file_label='File', file_name='file.xlsx'):
