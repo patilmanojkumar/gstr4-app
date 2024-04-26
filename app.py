@@ -24,21 +24,22 @@ def process_file(uploaded_file):
 
     return result
 
-# Streamlit app
+import streamlit as st
+
 def main():
-    st.title("Upload Gstr4 excel file")
+    st.title("Upload the GSTR4A Excel file")
     
     # Upload file
-    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"], key='file_uploader')
 
     if uploaded_file is not None:
-        st.write("File uploaded successfully!")
+        st.success("File uploaded successfully!")  # Green success message
 
         # Process the uploaded file
         result = process_file(uploaded_file)
 
         # Download link for the processed file
-        st.markdown(get_binary_file_downloader_html(result, file_label='Processed file', file_name='processed-file.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_binary_file_downloader_html(result, file_label='<span style="color: blue;">Processed file</span>', file_name='processed-file.xlsx'), unsafe_allow_html=True)
 
 # Function to create a download link for files
 def get_binary_file_downloader_html(bin_file, file_label='File', file_name='file.xlsx'):
