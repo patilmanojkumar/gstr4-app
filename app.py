@@ -7,10 +7,10 @@ import base64
 import pandas as pd
 
 def process_file(uploaded_file):
-    # Load the Excel file, reading from the 'B2B' sheet and skipping the first 5 rows
+    # Read the Excel file
     df = pd.read_excel(uploaded_file, sheet_name='B2B', skiprows=5)
-    
-    # Select and rename required columns
+
+    # Select and rename relevant columns
     df1 = df[['Unnamed: 1', 'Unnamed: 9', 'Unnamed: 10', 
               'Integrated tax  (₹)', 'Central tax (₹)', 
               'State/UT tax (₹)', 'Cess  (₹)']]
@@ -19,30 +19,27 @@ def process_file(uploaded_file):
         'Unnamed: 9': 'Rate (%)',
         'Unnamed: 10': 'Taxable value (₹)'
     }, inplace=True)
-    
-    # Remove non-numeric characters from relevant columns
-    cols_to_convert = df1.columns[2:]
-    df1[cols_to_convert] = df1[cols_to_convert].replace('[^\d.]', '', regex=True)
-    
-    # Convert columns to numeric types
-    df1[cols_to_convert] = df1[cols_to_convert].apply(pd.to_numeric, errors='coerce')
-    
-    # Drop rows with missing GSTIN or Rate, as groupby would fail
+
+    # Clean numeric columns
+    cols_to_clean = ['Taxable value (₹)', 'Integrated tax  (₹)', 
+                     'Central tax (₹)', 'State/UT tax (₹)', 'Cess  (₹)']
+    df1[cols_to_clean] = df1[cols_to_clean].replace('[^\d.]', '', regex=True)
+    df1[cols_to_clean] = df1[cols_to_clean].apply(pd.to_numeric, errors='coerce')
+
+    # Drop rows with missing group keys
     df1 = df1.dropna(subset=['GSTIN of supplier', 'Rate (%)'])
-    
-    # Group and sum the numeric values
-    numeric_cols = df1.select_dtypes(include='number').columns
-    numeric_cols = numeric_cols.drop('Rate (%)')  # Don't sum the rate
 
-    grouped = df1.groupby(['GSTIN of supplier', 'Rate (%)'], as_index=False)[numeric_cols].sum()
+    # Group by 'GSTIN of supplier' and 'Rate (%)' and sum the other numeric columns
+    grouped = df1.groupby(['GSTIN of supplier', 'Rate (%)'], as_index=False)[
+        ['Taxable value (₹)', 'Integrated tax  (₹)', 'Central tax (₹)', 'State/UT tax (₹)', 'Cess  (₹)']
+    ].sum()
 
-    # Reorder columns
-    tax_cols = [col for col in grouped.columns if col not in ['GSTIN of supplier', 'Taxable value (₹)', 'Rate (%)']]
-    final_cols = ['GSTIN of supplier', 'Taxable value (₹)', 'Rate (%)'] + tax_cols
-    result = grouped[final_cols]
-    
-    return result
+    # Reorder columns explicitly
+    ordered_columns = ['GSTIN of supplier', 'Taxable value (₹)', 'Rate (%)', 
+                       'Integrated tax  (₹)', 'Central tax (₹)', 'State/UT tax (₹)', 'Cess  (₹)']
+    grouped = grouped[ordered_columns]
 
+    return grouped
 import streamlit as st
 
 def main():
